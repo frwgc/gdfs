@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"flag"
 	"fmt"
@@ -57,9 +56,9 @@ func main() {
 	if *dest == "" {
 		myContents := fileContents()
 		node.SetStreamHandler("/dfs/1.0.0", func(s network.Stream) {
-			rw := bufio.NewReadWriter(bufio.NewReader(s), bufio.NewWriter(s))
+			defer s.Close()
 			fmt.Printf("Remote peer addres: %+v\n", s.Conn().RemotePeer())
-			nBytes, err := rw.WriteString(myContents)
+			nBytes, err := s.Write([]byte(myContents))
 			if err != nil {
 				log.Printf("Couldn't write to stream: %s\n", err.Error())
 				os.Exit(1)
@@ -91,8 +90,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		var bytes []byte
-		_, err = s.Read(bytes)
+		bytes, err := io.ReadAll(s)
 		if err != nil {
 			log.Printf("Cannot read from network stream: %s\n", err.Error())
 			os.Exit(1)

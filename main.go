@@ -64,7 +64,7 @@ func main() {
 				log.Printf("Couldn't write to stream: %s\n", err.Error())
 				os.Exit(1)
 			}
-			fmt.Printf("Wrote %d bytes to the stream: ", nBytes)
+			fmt.Printf("Wrote %d bytes to the Stream\n", nBytes)
 		})
 
 		ch := make(chan os.Signal, 1)
@@ -91,12 +91,13 @@ func main() {
 			os.Exit(1)
 		}
 
-		rw := bufio.NewReadWriter(bufio.NewReader(s), bufio.NewWriter(s))
-		bytes, err := rw.ReadString('\n')
+		var bytes []byte
+		_, err = s.Read(bytes)
 		if err != nil {
-			log.Printf("Cannot read from read writer.: %s\n", err.Error())
+			log.Printf("Cannot read from network stream: %s\n", err.Error())
 			os.Exit(1)
 		}
+
 		fmt.Println("Read the following bytes from stream: ", string(bytes))
 	}
 }
